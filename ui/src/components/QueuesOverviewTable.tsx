@@ -21,6 +21,7 @@ import { queueDetailsPath } from "../paths";
 import { SortDirection, SortableTableColumn } from "../types/table";
 import prettyBytes from "pretty-bytes";
 import { percentage } from "../utils";
+import { useTranslation } from "react-i18next";
 
 const useStyles = makeStyles((theme) => ({
   table: {
@@ -58,43 +59,6 @@ enum SortBy {
   None, // no sort support
 }
 
-const colConfigs: SortableTableColumn<SortBy>[] = [
-  { label: "Queue", key: "queue", sortBy: SortBy.Queue, align: "left" },
-  { label: "State", key: "state", sortBy: SortBy.State, align: "left" },
-  {
-    label: "Size",
-    key: "size",
-    sortBy: SortBy.Size,
-    align: "right",
-  },
-  {
-    label: "Memory usage",
-    key: "memory_usage",
-    sortBy: SortBy.MemoryUsage,
-    align: "right",
-  },
-  {
-    label: "Latency",
-    key: "latency",
-    sortBy: SortBy.Latency,
-    align: "right",
-  },
-  {
-    label: "Processed",
-    key: "processed",
-    sortBy: SortBy.Processed,
-    align: "right",
-  },
-  { label: "Failed", key: "failed", sortBy: SortBy.Failed, align: "right" },
-  {
-    label: "Error rate",
-    key: "error_rate",
-    sortBy: SortBy.ErrorRate,
-    align: "right",
-  },
-  { label: "Actions", key: "actions", sortBy: SortBy.None, align: "center" },
-];
-
 // sortQueues takes a array of queues and return a sorted array.
 // It returns a new array and leave the original array untouched.
 function sortQueues(
@@ -108,11 +72,23 @@ function sortQueues(
 
 export default function QueuesOverviewTable(props: Props) {
   const classes = useStyles();
+  const { t } = useTranslation();
   const [sortBy, setSortBy] = useState<SortBy>(SortBy.Queue);
   const [sortDir, setSortDir] = useState<SortDirection>(SortDirection.Asc);
   const [queueToDelete, setQueueToDelete] = useState<QueueWithMetadata | null>(
     null
   );
+  const colConfigs: SortableTableColumn<SortBy>[] = [
+    { label: t("table.queue"), key: "queue", sortBy: SortBy.Queue, align: "left" },
+    { label: t("table.state"), key: "state", sortBy: SortBy.State, align: "left" },
+    { label: t("table.size"), key: "size", sortBy: SortBy.Size, align: "right" },
+    { label: t("table.memoryUsage"), key: "memory_usage", sortBy: SortBy.MemoryUsage, align: "right" },
+    { label: t("table.latency"), key: "latency", sortBy: SortBy.Latency, align: "right" },
+    { label: t("table.processed"), key: "processed", sortBy: SortBy.Processed, align: "right" },
+    { label: t("table.failed"), key: "failed", sortBy: SortBy.Failed, align: "right" },
+    { label: t("table.errorRate"), key: "error_rate", sortBy: SortBy.ErrorRate, align: "right" },
+    { label: t("table.actions"), key: "actions", sortBy: SortBy.None, align: "center" },
+  ];
   const createSortClickHandler = (sortKey: SortBy) => (e: React.MouseEvent) => {
     if (sortKey === sortBy) {
       // Toggle sort direction.
@@ -277,6 +253,7 @@ interface RowProps {
 
 function Row(props: RowProps) {
   const classes = useRowStyles();
+  const { t } = useTranslation();
   const { queue: q } = props;
   const [showIcons, setShowIcons] = useState<boolean>(false);
   return (
@@ -292,9 +269,9 @@ function Row(props: RowProps) {
       </TableCell>
       <TableCell>
         {q.paused ? (
-          <span className={classes.textRed}>paused</span>
+          <span className={classes.textRed}>{t("common.pause")}</span>
         ) : (
-          <span className={classes.textGreen}>run</span>
+          <span className={classes.textGreen}>{t("common.run")}</span>
         )}
       </TableCell>
       <TableCell align="right">{q.size}</TableCell>
@@ -313,7 +290,7 @@ function Row(props: RowProps) {
             {showIcons ? (
               <React.Fragment>
                 {q.paused ? (
-                  <Tooltip title="Resume">
+                  <Tooltip title={t("common.resume")}>
                     <IconButton
                       color="secondary"
                       onClick={props.onResumeClick}
@@ -324,7 +301,7 @@ function Row(props: RowProps) {
                     </IconButton>
                   </Tooltip>
                 ) : (
-                  <Tooltip title="Pause">
+                  <Tooltip title={t("common.pause")}>
                     <IconButton
                       color="primary"
                       onClick={props.onPauseClick}
@@ -335,7 +312,7 @@ function Row(props: RowProps) {
                     </IconButton>
                   </Tooltip>
                 )}
-                <Tooltip title="Delete">
+                <Tooltip title={t("common.delete")}>
                   <IconButton onClick={props.onDeleteClick} size="small">
                     <DeleteIcon fontSize="small" />
                   </IconButton>

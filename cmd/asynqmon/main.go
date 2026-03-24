@@ -43,6 +43,11 @@ type Config struct {
 	EnableMetricsExporter bool
 	PrometheusServerAddr  string
 
+	// Auth related configs
+	EnableAuth   bool
+	AuthUsername string
+	AuthPassword string
+
 	// Args are the positional (non-flag) command line arguments
 	Args []string
 }
@@ -72,6 +77,9 @@ func parseFlags(progname string, args []string) (cfg *Config, output string, err
 	flags.BoolVar(&conf.EnableMetricsExporter, "enable-metrics-exporter", getEnvOrDefaultBool("ENABLE_METRICS_EXPORTER", false), "enable prometheus metrics exporter to expose queue metrics")
 	flags.StringVar(&conf.PrometheusServerAddr, "prometheus-addr", getEnvDefaultString("PROMETHEUS_ADDR", ""), "address of prometheus server to query time series")
 	flags.BoolVar(&conf.ReadOnly, "read-only", getEnvOrDefaultBool("READ_ONLY", false), "restrict to read-only mode")
+	flags.BoolVar(&conf.EnableAuth, "enable-auth", getEnvOrDefaultBool("ENABLE_AUTH", false), "enable username/password authentication")
+	flags.StringVar(&conf.AuthUsername, "auth-username", getEnvDefaultString("AUTH_USERNAME", ""), "username for authentication (requires --enable-auth)")
+	flags.StringVar(&conf.AuthPassword, "auth-password", getEnvDefaultString("AUTH_PASSWORD", ""), "password for authentication (requires --enable-auth)")
 
 	err = flags.Parse(args)
 	if err != nil {
@@ -153,8 +161,19 @@ func main() {
 		ResultFormatter:   asynqmon.ResultFormatterFunc(resultFormatterFunc(cfg)),
 		PrometheusAddress: cfg.PrometheusServerAddr,
 		ReadOnly:          cfg.ReadOnly,
+		EnableAuth:        cfg.EnableAuth,
 	})
 	defer h.Close()
+
+	if cfg.EnableAuth {
+		if cfg.AuthUsername == "" || cfg.AuthPassword == "" {
+			log.Fatal("--auth-username and --auth-password are required when --enable-auth is set")
+		}
+		if err := h.SetCredentials(cfg.AuthUsername, cfg.AuthPassword); err != nil {
+			log.Fatalf("failed to set authentication credentials: %v", err)
+		}
+		log.Printf("Authentication enabled for user: %s", cfg.AuthUsername)
+	}
 
 	c := cors.New(cors.Options{
 		AllowedMethods: []string{"GET", "POST", "DELETE"},

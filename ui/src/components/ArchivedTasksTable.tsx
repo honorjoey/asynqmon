@@ -80,7 +80,7 @@ function Row(props: RowProps) {
       onClick={() => history.push(taskDetailsPath(task.queue, task.id))}
     >
       {!window.READ_ONLY && (
-        <TableCell padding="checkbox" onClick={(e) => e.stopPropagation()}>
+        <TableCell padding="checkbox" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
           <IconButton>
             <Checkbox
               onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
@@ -96,7 +96,7 @@ function Row(props: RowProps) {
           {uuidPrefix(task.id)}
           <Tooltip title="Copy full ID to clipboard">
             <IconButton
-              onClick={(e) => {
+              onClick={(e: React.MouseEvent) => {
                 e.stopPropagation();
                 navigator.clipboard.writeText(task.id);
               }}
@@ -125,7 +125,7 @@ function Row(props: RowProps) {
           className={classes.actionCell}
           onMouseEnter={props.onActionCellEnter}
           onMouseLeave={props.onActionCellLeave}
-          onClick={(e) => e.stopPropagation()}
+          onClick={(e: React.MouseEvent) => e.stopPropagation()}
         >
           {props.showActions ? (
             <React.Fragment>

@@ -16,6 +16,7 @@ import { timeAgoUnix } from "../utils";
 import { RedisInfo } from "../api";
 import QueueLocationTable from "../components/QueueLocationTable";
 import Link from "@material-ui/core/Link";
+import { useTranslation } from "react-i18next";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -54,6 +55,7 @@ function RedisInfoView(props: Props) {
     queueLocations,
   } = props;
   usePolling(getRedisInfoAsync, pollInterval);
+  const { t } = useTranslation();
 
   // Metrics to show
   // - Used Memory
@@ -70,18 +72,18 @@ function RedisInfoView(props: Props) {
           <>
             <Grid item xs={12}>
               <Typography variant="h5" color="textPrimary">
-                {redisClusterEnabled ? "Redis Cluster Info" : "Redis Info"}
+                {redisClusterEnabled ? t("redis.titleCluster") : t("redis.titleSingle")}
               </Typography>
               {!redisClusterEnabled && (
                 <Typography variant="subtitle1" color="textSecondary">
-                  Connected to: {props.redisAddress}
+                  {t("redis.connectedTo", { address: props.redisAddress })}
                 </Typography>
               )}
             </Grid>
             {queueLocations && queueLocations.length > 0 && (
               <Grid item xs={12}>
                 <Typography variant="h6" color="textSecondary">
-                  Queue Location in Cluster
+                  {t("redis.queueLocationInCluster")}
                 </Typography>
                 <QueueLocationTable queueLocations={queueLocations} />
               </Grid>
@@ -96,7 +98,7 @@ function RedisInfoView(props: Props) {
                     >
                       CLUSTER NODES
                     </Link>{" "}
-                    Command Output
+                    {t("redis.clusterNodesOutput").replace("CLUSTER NODES ", "")}
                   </Typography>
                   <SyntaxHighlighter language="yaml">
                     {redisClusterNodesRaw}
@@ -136,8 +138,8 @@ function RedisInfoView(props: Props) {
           <Grid item xs={12}>
             <Alert severity="error">
               <AlertTitle>Error</AlertTitle>
-              Could not retrieve redis live data —{" "}
-              <strong>See the logs for details</strong>
+              {t("redis.errorMsg")} —{" "}
+              <strong>{t("common.seeLogsForDetails")}</strong>
             </Alert>
           </Grid>
         )}
@@ -148,76 +150,77 @@ function RedisInfoView(props: Props) {
 
 function RedisMetricCards(props: { redisInfo: RedisInfo }) {
   const { redisInfo } = props;
+  const { t } = useTranslation();
   return (
     <>
       <Grid item xs={12}>
         <Typography variant="h6" color="textSecondary">
-          Server
+          {t("redis.serverSection")}
         </Typography>
       </Grid>
       <Grid item xs={3}>
-        <MetricCard title="Version" content={redisInfo.redis_version} />
+        <MetricCard title={t("common.version")} content={redisInfo.redis_version} />
       </Grid>
       <Grid item xs={3}>
         <MetricCard
-          title="Uptime"
-          content={`${redisInfo.uptime_in_days} days`}
+          title={t("common.uptime")}
+          content={t("redis.uptimeDays", { days: redisInfo.uptime_in_days })}
         />
       </Grid>
       <Grid item xs={6} />
       <Grid item xs={12}>
         <Typography variant="h6" color="textSecondary">
-          Memory
+          {t("redis.memorySection")}
         </Typography>
       </Grid>
       <Grid item xs={3}>
-        <MetricCard title="Used Memory" content={redisInfo.used_memory_human} />
+        <MetricCard title={t("common.usedMemory")} content={redisInfo.used_memory_human} />
       </Grid>
       <Grid item xs={3}>
         <MetricCard
-          title="Peak Memory Used"
+          title={t("common.peakMemoryUsed")}
           content={redisInfo.used_memory_peak_human}
         />
       </Grid>
       <Grid item xs={3}>
         <MetricCard
-          title="Memory Fragmentation Ratio"
+          title={t("common.memoryFragmentationRatio")}
           content={redisInfo.mem_fragmentation_ratio}
         />
       </Grid>
       <Grid item xs={3} />
       <Grid item xs={12}>
         <Typography variant="h6" color="textSecondary">
-          Connections
+          {t("redis.connectionsSection")}
         </Typography>
       </Grid>
       <Grid item xs={3}>
         <MetricCard
-          title="Connected Clients"
+          title={t("common.connectedClients")}
           content={redisInfo.connected_clients}
         />
       </Grid>
       <Grid item xs={3}>
         <MetricCard
-          title="Connected Replicas"
+          title={t("common.connectedReplicas")}
           content={redisInfo.connected_slaves}
         />
       </Grid>
       <Grid item xs={6} />
       <Grid item xs={12}>
         <Typography variant="h6" color="textSecondary">
-          Persistence
+          {t("redis.persistenceSection")}
         </Typography>
       </Grid>
       <Grid item xs={3}>
         <MetricCard
-          title="Last Save to Disk"
+          title={t("redis.lastSaveToDisk")}
           content={timeAgoUnix(parseInt(redisInfo.rdb_last_save_time))}
         />
       </Grid>
       <Grid item xs={3}>
         <MetricCard
-          title="Number of Changes Since Last Dump"
+          title={t("redis.changesSinceLastDump")}
           content={redisInfo.rdb_changes_since_last_save}
         />
       </Grid>

@@ -8,6 +8,8 @@ import parseFlagsUnderWindow from "./parseFlags";
 import * as serviceWorker from "./serviceWorker";
 import { saveState } from "./localStorage";
 import { SettingsState } from "./reducers/settingsReducer";
+// Initialize i18n before rendering the app
+import "./i18n";
 
 parseFlagsUnderWindow();
 

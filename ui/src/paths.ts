@@ -1,6 +1,7 @@
 export const paths = () => ({
   HOME: `${window.ROOT_PATH}/`,
   SETTINGS: `${window.ROOT_PATH}/settings`,
+  CHANGE_PASSWORD: `${window.ROOT_PATH}/settings/change_password`,
   SERVERS: `${window.ROOT_PATH}/servers`,
   SCHEDULERS: `${window.ROOT_PATH}/schedulers`,
   QUEUE_DETAILS: `${window.ROOT_PATH}/queues/:qname`,

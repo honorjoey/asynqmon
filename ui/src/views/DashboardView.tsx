@@ -24,6 +24,7 @@ import Tooltip from "../components/Tooltip";
 import SplitButton from "../components/SplitButton";
 import { usePolling } from "../hooks";
 import DailyStatsChart from "../components/DailyStatsChart";
+import { useTranslation } from "react-i18next";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -102,6 +103,7 @@ function DashboardView(props: Props) {
     dailyStatsKey,
   } = props;
   const classes = useStyles();
+  const { t } = useTranslation();
 
   usePolling(listQueuesAsync, pollInterval);
 
@@ -127,9 +129,9 @@ function DashboardView(props: Props) {
         {props.error.length > 0 && (
           <Grid item xs={12}>
             <Alert severity="error">
-              <AlertTitle>Error</AlertTitle>
-              Could not retrieve queues live data —{" "}
-              <strong>See the logs for details</strong>
+              <AlertTitle>{t("common.error")}</AlertTitle>
+              {t("dashboard.errorMsg")} —{" "}
+              <strong>{t("common.seeLogsForDetails")}</strong>
             </Alert>
           </Grid>
         )}
@@ -137,31 +139,31 @@ function DashboardView(props: Props) {
           <Paper className={classes.paper} variant="outlined">
             <div className={classes.chartHeader}>
               <div className={classes.chartHeaderTitle}>
-                <Typography variant="h6">Queue Size</Typography>
+                <Typography variant="h6">{t("dashboard.queueSize")}</Typography>
                 <Tooltip
                   title={
                     <div>
                       <div className={classes.tooltipSection}>
-                        Total number of tasks in the queue
+                        {t("dashboard.queueSizeTooltip")}
                       </div>
                       <div className={classes.tooltipSection}>
-                        <strong>Active</strong>: number of tasks currently being
+                        <strong>{t("common.active")}</strong>: number of tasks currently being
                         processed
                       </div>
                       <div className={classes.tooltipSection}>
-                        <strong>Pending</strong>: number of tasks ready to be
+                        <strong>{t("common.pending")}</strong>: number of tasks ready to be
                         processed
                       </div>
                       <div className={classes.tooltipSection}>
-                        <strong>Scheduled</strong>: number of tasks scheduled to
+                        <strong>{t("common.scheduled")}</strong>: number of tasks scheduled to
                         be processed in the future
                       </div>
                       <div className={classes.tooltipSection}>
-                        <strong>Retry</strong>: number of tasks scheduled to be
+                        <strong>{t("common.retry")}</strong>: number of tasks scheduled to be
                         retried in the future
                       </div>
                       <div>
-                        <strong>Archived</strong>: number of tasks exhausted
+                        <strong>{t("common.archived")}</strong>: number of tasks exhausted
                         their retries
                       </div>
                     </div>
@@ -181,19 +183,19 @@ function DashboardView(props: Props) {
           <Paper className={classes.paper} variant="outlined">
             <div className={classes.chartHeader}>
               <div className={classes.chartHeaderTitle}>
-                <Typography variant="h6">Tasks Processed</Typography>
+                <Typography variant="h6">{t("dashboard.tasksProcessed")}</Typography>
                 <Tooltip
                   title={
                     <div>
                       <div className={classes.tooltipSection}>
-                        Total number of tasks processed in a given day (UTC)
+                        {t("dashboard.tasksProcessedTooltip")}
                       </div>
                       <div className={classes.tooltipSection}>
-                        <strong>Succeeded</strong>: number of tasks successfully
+                        <strong>{t("common.succeeded")}</strong>: number of tasks successfully
                         processed
                       </div>
                       <div>
-                        <strong>Failed</strong>: number of tasks failed to be
+                        <strong>{t("common.failed")}</strong>: number of tasks failed to be
                         processed
                       </div>
                     </div>
@@ -205,10 +207,10 @@ function DashboardView(props: Props) {
               <div>
                 <SplitButton
                   options={[
-                    { label: "Today", key: "today" },
-                    { label: "Last 7d", key: "last-7d" },
-                    { label: "Last 30d", key: "last-30d" },
-                    { label: "Last 90d", key: "last-90d" },
+                    { label: t("dashboard.today"), key: "today" },
+                    { label: t("dashboard.last7d"), key: "last-7d" },
+                    { label: t("dashboard.last30d"), key: "last-30d" },
+                    { label: t("dashboard.last90d"), key: "last-90d" },
                   ]}
                   initialSelectedKey={dailyStatsKey}
                   onSelect={(key) =>

@@ -117,7 +117,7 @@ export default function SplitButton(props: Props) {
                     <MenuItem
                       key={opt.key}
                       selected={opt.key === selectedKey}
-                      onClick={(event) => handleMenuItemClick(event, opt.key)}
+                      onClick={(event: React.MouseEvent<HTMLLIElement>) => handleMenuItemClick(event, opt.key)}
                     >
                       {opt.label}
                     </MenuItem>

@@ -40,4 +40,13 @@ export default function parseFlagsUnderWindow() {
   } else {
     window.READ_ONLY = window.FLAG_READ_ONLY === "true";
   }
+
+  // ENABLE_AUTH
+  if (window.FLAG_ENABLE_AUTH === undefined) {
+    window.ENABLE_AUTH = false;
+  } else if (window.FLAG_ENABLE_AUTH.startsWith(goTmplActionPrefix)) {
+    window.ENABLE_AUTH = false;
+  } else {
+    window.ENABLE_AUTH = window.FLAG_ENABLE_AUTH === "true";
+  }
 }

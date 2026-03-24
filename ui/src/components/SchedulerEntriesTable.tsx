@@ -20,6 +20,7 @@ import SyntaxHighlighter from "./SyntaxHighlighter";
 import { SchedulerEntry } from "../api";
 import { timeAgo, durationBefore, prettifyPayload } from "../utils";
 import SchedulerEnqueueEventsTable from "./SchedulerEnqueueEventsTable";
+import { useTranslation } from "react-i18next";
 
 const useStyles = makeStyles((theme) => ({
   table: {
@@ -63,57 +64,6 @@ enum SortBy {
   None,
 }
 
-const colConfigs: SortableTableColumn<SortBy>[] = [
-  {
-    label: "Entry ID",
-    key: "entry_id",
-    sortBy: SortBy.EntryId,
-    align: "left",
-  },
-  {
-    label: "Spec",
-    key: "spec",
-    sortBy: SortBy.Spec,
-    align: "left",
-  },
-  {
-    label: "Type",
-    key: "type",
-    sortBy: SortBy.Type,
-    align: "left",
-  },
-  {
-    label: "Payload",
-    key: "task_payload",
-    sortBy: SortBy.Payload,
-    align: "left",
-  },
-  {
-    label: "Options",
-    key: "options",
-    sortBy: SortBy.Options,
-    align: "left",
-  },
-  {
-    label: "Next Enqueue",
-    key: "next_enqueue",
-    sortBy: SortBy.NextEnqueue,
-    align: "left",
-  },
-  {
-    label: "Prev Enqueue",
-    key: "prev_enqueue",
-    sortBy: SortBy.PrevEnqueue,
-    align: "left",
-  },
-  {
-    label: "",
-    key: "show_history",
-    sortBy: SortBy.None,
-    align: "left",
-  },
-];
-
 // sortEntries takes a array of entries and return a sorted array.
 // It returns a new array and leave the original array untouched.
 function sortEntries(
@@ -131,9 +81,20 @@ interface Props {
 
 export default function SchedulerEntriesTable(props: Props) {
   const classes = useStyles();
+  const { t } = useTranslation();
   const [sortBy, setSortBy] = useState<SortBy>(SortBy.EntryId);
   const [sortDir, setSortDir] = useState<SortDirection>(SortDirection.Asc);
   const [activeEntryId, setActiveEntryId] = useState<string>("");
+  const colConfigs: SortableTableColumn<SortBy>[] = [
+    { label: t("table.entryId"), key: "entry_id", sortBy: SortBy.EntryId, align: "left" },
+    { label: t("table.spec"), key: "spec", sortBy: SortBy.Spec, align: "left" },
+    { label: t("table.type"), key: "type", sortBy: SortBy.Type, align: "left" },
+    { label: t("table.taskPayload"), key: "task_payload", sortBy: SortBy.Payload, align: "left" },
+    { label: t("table.options"), key: "options", sortBy: SortBy.Options, align: "left" },
+    { label: t("table.nextEnqueue"), key: "next_enqueue", sortBy: SortBy.NextEnqueue, align: "left" },
+    { label: t("table.prevEnqueue"), key: "prev_enqueue", sortBy: SortBy.PrevEnqueue, align: "left" },
+    { label: "", key: "show_history", sortBy: SortBy.None, align: "left" },
+  ];
 
   const createSortClickHandler = (sortKey: SortBy) => (e: React.MouseEvent) => {
     if (sortKey === sortBy) {
@@ -194,7 +155,7 @@ export default function SchedulerEntriesTable(props: Props) {
   if (props.entries.length === 0) {
     return (
       <Alert severity="info">
-        <AlertTitle>Info</AlertTitle>
+        <AlertTitle>{t("common.info")}</AlertTitle>
         No entries found at this time.
       </Alert>
     );
@@ -271,6 +232,7 @@ const useRowStyles = makeStyles((theme) => ({
 function Row(props: RowProps) {
   const { entry, isLastRow } = props;
   const classes = useRowStyles();
+  const { t } = useTranslation();
   return (
     <TableRow className={classes.rowRoot}>
       <TableCell
@@ -293,17 +255,17 @@ function Row(props: RowProps) {
       </TableCell>
       <TableCell className={clsx(isLastRow && classes.noBorder)}>
         <SyntaxHighlighter language="go">
-          {entry.options.length > 0 ? entry.options.join(", ") : "No options"}
+          {entry.options.length > 0 ? entry.options.join(", ") : t("table.noOptions")}
         </SyntaxHighlighter>
       </TableCell>
       <TableCell className={clsx(isLastRow && classes.noBorder)}>
         {durationBefore(entry.next_enqueue_at)}
       </TableCell>
       <TableCell className={clsx(isLastRow && classes.noBorder)}>
-        {entry.prev_enqueue_at ? timeAgo(entry.prev_enqueue_at) : "N/A"}
+        {entry.prev_enqueue_at ? timeAgo(entry.prev_enqueue_at) : t("common.na")}
       </TableCell>
       <TableCell>
-        <Tooltip title="See History">
+        <Tooltip title={t("common.seeHistory")}>
           <IconButton
             aria-label="expand row"
             size="small"

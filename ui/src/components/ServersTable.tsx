@@ -24,6 +24,7 @@ import { SortDirection, SortableTableColumn } from "../types/table";
 import { timeAgo, uuidPrefix, prettifyPayload } from "../utils";
 import { queueDetailsPath } from "../paths";
 import Typography from "@material-ui/core/Typography";
+import { useTranslation } from "react-i18next";
 
 const useStyles = makeStyles((theme) => ({
   table: {
@@ -44,39 +45,6 @@ enum SortBy {
   Queues,
   Started,
 }
-const colConfigs: SortableTableColumn<SortBy>[] = [
-  {
-    label: "Host:PID",
-    key: "host",
-    sortBy: SortBy.HostPID,
-    align: "left",
-  },
-  {
-    label: "Started",
-    key: "started",
-    sortBy: SortBy.Started,
-    align: "left",
-  },
-  {
-    label: "Status",
-    key: "status",
-    sortBy: SortBy.Status,
-    align: "left",
-  },
-  {
-    label: "Queues",
-    key: "queues",
-    sortBy: SortBy.Queues,
-    align: "left",
-  },
-  {
-    label: "Active Workers",
-    key: "workers",
-    sortBy: SortBy.ActiveWorkers,
-    align: "left",
-  },
-];
-
 // sortServers takes a array of server-infos and return a sorted array.
 // It returns a new array and leave the original array untouched.
 function sortServerInfos(
@@ -94,8 +62,16 @@ interface Props {
 
 export default function ServersTable(props: Props) {
   const classes = useStyles();
+  const { t } = useTranslation();
   const [sortBy, setSortBy] = useState<SortBy>(SortBy.HostPID);
   const [sortDir, setSortDir] = useState<SortDirection>(SortDirection.Asc);
+  const colConfigs: SortableTableColumn<SortBy>[] = [
+    { label: t("table.hostPid"), key: "host", sortBy: SortBy.HostPID, align: "left" },
+    { label: t("table.started"), key: "started", sortBy: SortBy.Started, align: "left" },
+    { label: t("table.status"), key: "status", sortBy: SortBy.Status, align: "left" },
+    { label: t("table.queues"), key: "queues", sortBy: SortBy.Queues, align: "left" },
+    { label: t("table.activeWorkers"), key: "workers", sortBy: SortBy.ActiveWorkers, align: "left" },
+  ];
 
   const createSortClickHandler = (sortKey: SortBy) => (e: React.MouseEvent) => {
     if (sortKey === sortBy) {
@@ -156,7 +132,7 @@ export default function ServersTable(props: Props) {
   if (props.servers.length === 0) {
     return (
       <Alert severity="info">
-        <AlertTitle>Info</AlertTitle>
+        <AlertTitle>{t("common.info")}</AlertTitle>
         No servers found at this time.
       </Alert>
     );
@@ -214,6 +190,7 @@ const useRowStyles = makeStyles((theme) => ({
 
 function Row(props: RowProps) {
   const classes = useRowStyles();
+  const { t } = useTranslation();
   const { server } = props;
   const [open, setOpen] = useState<boolean>(false);
   const qnames = Object.keys(server.queue_priorities);
@@ -239,7 +216,7 @@ function Row(props: RowProps) {
           {server.active_workers.length}/{server.concurrency}
         </TableCell>
         <TableCell>
-          <Tooltip title={open ? "Hide Details" : "Show Details"}>
+          <Tooltip title={open ? t("common.hideDetails") : t("common.showDetails")}>
             <IconButton
               aria-label="expand row"
               size="small"
@@ -260,15 +237,15 @@ function Row(props: RowProps) {
                   gutterBottom
                   color="textSecondary"
                 >
-                  Active Workers
+                  {t("table.activeWorkers")}
                 </Typography>
                 <Table size="small" aria-label="active workers">
                   <TableHead>
                     <TableRow>
-                      <TableCell>Task ID</TableCell>
-                      <TableCell>Task Payload</TableCell>
-                      <TableCell>Queue</TableCell>
-                      <TableCell>Started</TableCell>
+                      <TableCell>{t("table.taskId")}</TableCell>
+                      <TableCell>{t("table.taskPayload")}</TableCell>
+                      <TableCell>{t("table.queue")}</TableCell>
+                      <TableCell>{t("table.started")}</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -298,13 +275,13 @@ function Row(props: RowProps) {
                   gutterBottom
                   color="textSecondary"
                 >
-                  Queue Priority
+                  {t("table.queuePriority")}
                 </Typography>
                 <Table size="small" aria-label="active workers">
                   <TableHead>
                     <TableRow>
-                      <TableCell>Queue</TableCell>
-                      <TableCell align="right">Priority</TableCell>
+                      <TableCell>{t("table.queue")}</TableCell>
+                      <TableCell align="right">{t("table.priority")}</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -327,10 +304,10 @@ function Row(props: RowProps) {
                 </Table>
                 <Box margin={2}>
                   <Typography variant="subtitle2" component="span">
-                    Strict Priority:{" "}
+                    {t("table.strictPriority")}:{" "}
                   </Typography>
                   <Typography variant="button" component="span">
-                    {server.strict_priority_enabled ? "ON" : "OFF"}
+                    {server.strict_priority_enabled ? t("common.on") : t("common.off")}
                   </Typography>
                 </Box>
               </Grid>

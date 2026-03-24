@@ -9,6 +9,7 @@ import { usePolling } from "../hooks";
 import { AppState } from "../store";
 import AggregatingTasksTable from "./AggregatingTasksTable";
 import GroupSelect from "./GroupSelect";
+import { useTranslation } from "react-i18next";
 
 const useStyles = makeStyles((theme) => ({
   groupSelector: {
@@ -47,6 +48,7 @@ function AggregatingTasksTableContainer(
   const [selectedGroup, setSelectedGroup] = useState<GroupInfo | null>(null);
   const { pollInterval, listGroupsAsync, queue } = props;
   const classes = useStyles();
+  const { t } = useTranslation();
 
   const fetchGroups = useCallback(() => {
     listGroupsAsync(queue);
@@ -57,7 +59,7 @@ function AggregatingTasksTableContainer(
   if (props.groupsError.length > 0) {
     return (
       <Alert severity="error" className={classes.alert}>
-        <AlertTitle>Error</AlertTitle>
+        <AlertTitle>{t("common.error")}</AlertTitle>
         {props.groupsError}
       </Alert>
     );
@@ -65,8 +67,8 @@ function AggregatingTasksTableContainer(
   if (props.groups.length === 0) {
     return (
       <Alert severity="info" className={classes.alert}>
-        <AlertTitle>Info</AlertTitle>
-        No aggregating tasks at this time.
+        <AlertTitle>{t("common.info")}</AlertTitle>
+        {t("tasks.noAggregatingTasks")}
       </Alert>
     );
   }
@@ -89,8 +91,8 @@ function AggregatingTasksTableContainer(
         />
       ) : (
         <Alert severity="info" className={classes.alert}>
-          <AlertTitle>Info</AlertTitle>
-          <div>Please select group</div>
+          <AlertTitle>{t("common.info")}</AlertTitle>
+          <div>{t("tasks.selectGroup")}</div>
         </Alert>
       )}
     </div>

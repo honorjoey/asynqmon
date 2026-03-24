@@ -25,14 +25,14 @@ RUN yarn install && yarn build
 # Building a backend.
 #
 
-FROM golang:1.18-alpine AS backend
+FROM golang:1.25-alpine AS backend
 
 # Move to a working directory (/build).
 WORKDIR /build
 
 # Copy and download dependencies.
 COPY go.mod go.sum ./
-RUN go mod download
+RUN go mod tidy
 
 # Copy a source code to the container.
 COPY . .

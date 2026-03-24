@@ -11,6 +11,7 @@ import AlertTitle from "@material-ui/lab/AlertTitle";
 import { AppState } from "../store";
 import { listSchedulerEntriesAsync } from "../actions/schedulerEntriesActions";
 import { usePolling } from "../hooks";
+import { useTranslation } from "react-i18next";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -45,6 +46,7 @@ type Props = ConnectedProps<typeof connector>;
 function SchedulersView(props: Props) {
   const { pollInterval, listSchedulerEntriesAsync } = props;
   const classes = useStyles();
+  const { t } = useTranslation();
 
   usePolling(listSchedulerEntriesAsync, pollInterval);
 
@@ -55,7 +57,7 @@ function SchedulersView(props: Props) {
           <Grid item xs={12}>
             <Paper className={classes.paper} variant="outlined">
               <Typography variant="h6" className={classes.heading}>
-                Scheduler Entries
+                {t("schedulers.title")}
               </Typography>
               <SchedulerEntriesTable entries={props.entries} />
             </Paper>
@@ -63,9 +65,9 @@ function SchedulersView(props: Props) {
         ) : (
           <Grid item xs={12}>
             <Alert severity="error">
-              <AlertTitle>Error</AlertTitle>
-              Could not retrieve scheduler entries live data —{" "}
-              <strong>See the logs for details</strong>
+              <AlertTitle>{t("common.error")}</AlertTitle>
+              {t("schedulers.errorMsg")} —{" "}
+              <strong>{t("common.seeLogsForDetails")}</strong>
             </Alert>
           </Grid>
         )}

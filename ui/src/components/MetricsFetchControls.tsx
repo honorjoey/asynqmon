@@ -21,6 +21,7 @@ import dayjs from "dayjs";
 import { currentUnixtime, parseDuration } from "../utils";
 import { AppState } from "../store";
 import { isDarkTheme } from "../theme";
+import { useTranslation } from "react-i18next";
 
 function mapStateToProps(state: AppState) {
   return { pollInterval: state.settings.pollInterval };
@@ -199,6 +200,7 @@ function getInitialState(endTimeSec: number, durationSec: number): State {
 
 function MetricsFetchControls(props: Props) {
   const classes = useStyles();
+  const { t } = useTranslation();
 
   const [state, setState] = React.useState<State>(
     getInitialState(props.endTimeSec, props.durationSec)
@@ -300,7 +302,7 @@ function MetricsFetchControls(props: Props) {
       } catch (error) {
         setState((prevState) => ({
           ...prevState,
-          customDurationError: "Duration invalid",
+          customDurationError: t("common.durationInvalid"),
         }));
       }
     }
@@ -314,7 +316,7 @@ function MetricsFetchControls(props: Props) {
       if (isNaN(timeUsecOrNaN)) {
         setState((prevState) => ({
           ...prevState,
-          customEndTimeError: "End time invalid",
+          customEndTimeError: t("common.endTimeInvalid"),
         }));
         return;
       }
@@ -404,7 +406,7 @@ function MetricsFetchControls(props: Props) {
             label: classes.buttonLabel,
           }}
         >
-          {state.endTimeOption === "real_time" ? "Realtime" : "Historical"}:{" "}
+          {state.endTimeOption === "real_time" ? t("common.realtime") : t("common.historical")}:{" "}
           {state.durationOption === "custom"
             ? state.customDuration
             : state.durationOption}
@@ -505,9 +507,9 @@ function MetricsFetchControls(props: Props) {
                   value={state.endTimeOption}
                   onChange={handleEndTimeOptionChange}
                 >
-                  <RadioInput value="real_time" label="Real Time" />
-                  <RadioInput value="freeze_at_now" label="Freeze at now" />
-                  <RadioInput value="custom" label="Custom End Time" />
+                  <RadioInput value="real_time" label={t("common.realTime")} />
+                  <RadioInput value="freeze_at_now" label={t("common.freezeAtNow")} />
+                  <RadioInput value="custom" label={t("common.customEndTime")} />
                 </RadioGroup>
                 <div className={classes.customInputField}>
                   <TextField
@@ -544,7 +546,7 @@ function MetricsFetchControls(props: Props) {
                   <RadioInput value="1d" label="1 day" />
                   <RadioInput value="8d" label="8 days" />
                   <RadioInput value="30d" label="30 days" />
-                  <RadioInput value="custom" label="Custom Duration" />
+                  <RadioInput value="custom" label={t("common.customDuration")} />
                 </RadioGroup>
                 <div className={classes.customInputField}>
                   <TextField

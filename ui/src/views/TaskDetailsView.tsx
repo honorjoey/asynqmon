@@ -19,6 +19,7 @@ import { usePolling } from "../hooks";
 import { listQueuesAsync } from "../actions/queuesActions";
 import SyntaxHighlighter from "../components/SyntaxHighlighter";
 import { durationFromSeconds, stringifyDuration, timeAgo, prettifyPayload } from "../utils";
+import { useTranslation } from "react-i18next";
 
 function mapStateToProps(state: AppState) {
   return {
@@ -71,6 +72,7 @@ type Props = ConnectedProps<typeof connector>;
 
 function TaskDetailsView(props: Props) {
   const classes = useStyles();
+  const { t } = useTranslation();
   const { qname, taskId } = useParams<TaskDetailsRouteParams>();
   const { getTaskInfoAsync, pollInterval, listQueuesAsync, taskInfo } = props;
   const history = useHistory();
@@ -101,19 +103,19 @@ function TaskDetailsView(props: Props) {
         <Grid item xs={12} md={6}>
           {props.error ? (
             <Alert severity="error" className={classes.alert}>
-              <AlertTitle>Error</AlertTitle>
+              <AlertTitle>{t("common.error")}</AlertTitle>
               {props.error}
             </Alert>
           ) : (
             <Paper className={classes.paper} variant="outlined">
-              <Typography variant="h6">Task Info</Typography>
+              <Typography variant="h6">{t("tasks.title")}</Typography>
               <div>
                 <div className={classes.infoRow}>
                   <Typography
                     variant="subtitle2"
                     className={classes.infoKeyCell}
                   >
-                    ID:{" "}
+                    {t("tasks.fieldId")}:{" "}
                   </Typography>
                   <Typography className={classes.infoValueCell}>
                     {taskInfo?.id}
@@ -124,7 +126,7 @@ function TaskDetailsView(props: Props) {
                     variant="subtitle2"
                     className={classes.infoKeyCell}
                   >
-                    Type:{" "}
+                    {t("tasks.fieldType")}:{" "}
                   </Typography>
                   <Typography className={classes.infoValueCell}>
                     {taskInfo?.type}
@@ -135,7 +137,7 @@ function TaskDetailsView(props: Props) {
                     variant="subtitle2"
                     className={classes.infoKeyCell}
                   >
-                    State:{" "}
+                    {t("tasks.fieldState")}:{" "}
                   </Typography>
                   <Typography className={classes.infoValueCell}>
                     {taskInfo?.state}
@@ -146,7 +148,7 @@ function TaskDetailsView(props: Props) {
                     variant="subtitle2"
                     className={classes.infoKeyCell}
                   >
-                    Queue:{" "}
+                    {t("tasks.fieldQueue")}:{" "}
                   </Typography>
                   <Typography className={classes.infoValueCell}>
                     {taskInfo?.queue}
@@ -157,7 +159,7 @@ function TaskDetailsView(props: Props) {
                     variant="subtitle2"
                     className={classes.infoKeyCell}
                   >
-                    Retry:{" "}
+                    {t("tasks.fieldRetry")}:{" "}
                   </Typography>
                   <Typography className={classes.infoValueCell}>
                     {taskInfo?.retried}/{taskInfo?.max_retry}
@@ -168,7 +170,7 @@ function TaskDetailsView(props: Props) {
                     variant="subtitle2"
                     className={classes.infoKeyCell}
                   >
-                    Last Failure:{" "}
+                    {t("tasks.fieldLastFailure")}:{" "}
                   </Typography>
                   <Typography className={classes.infoValueCell}>
                     {taskInfo?.last_failed_at ? (
@@ -185,7 +187,7 @@ function TaskDetailsView(props: Props) {
                     variant="subtitle2"
                     className={classes.infoKeyCell}
                   >
-                    Next Process Time:{" "}
+                    {t("tasks.fieldNextProcessTime")}:{" "}
                   </Typography>
                   {taskInfo?.next_process_at ? (
                     <Typography>{taskInfo?.next_process_at}</Typography>
@@ -196,11 +198,11 @@ function TaskDetailsView(props: Props) {
               </div>
               <div className={classes.infoRow}>
                 <Typography variant="subtitle2" className={classes.infoKeyCell}>
-                  Timeout:{" "}
+                  {t("tasks.fieldTimeout")}:{" "}
                 </Typography>
                 <Typography className={classes.infoValueCell}>
                   {taskInfo?.timeout_seconds ? (
-                    <Typography>{taskInfo?.timeout_seconds} seconds</Typography>
+                    <Typography>{t("tasks.timeoutSeconds", { seconds: taskInfo.timeout_seconds })}</Typography>
                   ) : (
                     <Typography> - </Typography>
                   )}
@@ -208,7 +210,7 @@ function TaskDetailsView(props: Props) {
               </div>
               <div className={classes.infoRow}>
                 <Typography variant="subtitle2" className={classes.infoKeyCell}>
-                  Deadline:{" "}
+                  {t("tasks.fieldDeadline")}:{" "}
                 </Typography>
                 <Typography className={classes.infoValueCell}>
                   {taskInfo?.deadline ? (
@@ -220,7 +222,7 @@ function TaskDetailsView(props: Props) {
               </div>
               <div className={classes.infoRow}>
                 <Typography variant="subtitle2" className={classes.infoKeyCell}>
-                  Payload:{" "}
+                  {t("tasks.fieldPayload")}:{" "}
                 </Typography>
                 <div className={classes.infoValueCell}>
                   {taskInfo?.payload && (
@@ -241,7 +243,7 @@ function TaskDetailsView(props: Props) {
                         variant="subtitle2"
                         className={classes.infoKeyCell}
                       >
-                        Completed:{" "}
+                        {t("tasks.fieldCompleted")}:{" "}
                       </Typography>
                       <div className={classes.infoValueCell}>
                         <Typography>
@@ -255,7 +257,7 @@ function TaskDetailsView(props: Props) {
                         variant="subtitle2"
                         className={classes.infoKeyCell}
                       >
-                        Result:{" "}
+                        {t("tasks.fieldResult")}:{" "}
                       </Typography>
                       <div className={classes.infoValueCell}>
                         <SyntaxHighlighter
@@ -271,15 +273,13 @@ function TaskDetailsView(props: Props) {
                         variant="subtitle2"
                         className={classes.infoKeyCell}
                       >
-                        TTL:{" "}
+                        {t("tasks.fieldTtl")}:{" "}
                       </Typography>
                       <Typography className={classes.infoValueCell}>
                         <Typography>
                           {taskInfo.ttl_seconds > 0
-                            ? `${stringifyDuration(
-                                durationFromSeconds(taskInfo.ttl_seconds)
-                              )} left`
-                            : "expired"}
+                            ? t("tasks.ttlLeft", { duration: stringifyDuration(durationFromSeconds(taskInfo.ttl_seconds)) })
+                            : t("tasks.ttlExpired")}
                         </Typography>
                       </Typography>
                     </div>
@@ -293,7 +293,7 @@ function TaskDetailsView(props: Props) {
               startIcon={<ArrowBackIcon />}
               onClick={() => history.goBack()}
             >
-              Go Back
+              {t("tasks.goBack")}
             </Button>
           </div>
         </Grid>

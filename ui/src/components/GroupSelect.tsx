@@ -7,6 +7,7 @@ import ListSubheader from "@material-ui/core/ListSubheader";
 import { VariableSizeList, ListChildComponentProps } from "react-window";
 import { GroupInfo } from "../api";
 import { isDarkTheme } from "../theme";
+import { useTranslation } from "react-i18next";
 
 const useStyles = makeStyles((theme) => ({
   groupSelectOption: {
@@ -40,6 +41,7 @@ interface Props {
 
 export default function GroupSelect(props: Props) {
   const classes = useStyles();
+  const { t } = useTranslation();
   const [inputValue, setInputValue] = React.useState("");
 
   return (
@@ -69,7 +71,7 @@ export default function GroupSelect(props: Props) {
         </div>
       )}
       renderInput={(params) => (
-        <TextField {...params} label="Select group" variant="outlined" />
+        <TextField {...params} label={t("common.selectGroup")} variant="outlined" />
       )}
       classes={{
         inputRoot: classes.inputRoot,

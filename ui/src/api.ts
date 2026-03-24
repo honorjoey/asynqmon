@@ -364,6 +364,52 @@ export interface PaginationOptions extends Record<string, number | undefined> {
   page?: number; // page number (1 being the first page)
 }
 
+export interface LoginResponse {
+  username: string;
+}
+
+export async function login(
+  username: string,
+  password: string
+): Promise<LoginResponse> {
+  const resp = await axios({
+    method: "post",
+    url: `${getBaseUrl()}/login`,
+    data: { username, password },
+    withCredentials: true,
+  });
+  return resp.data;
+}
+
+export async function logout(): Promise<void> {
+  await axios({
+    method: "post",
+    url: `${getBaseUrl()}/logout`,
+    withCredentials: true,
+  });
+}
+
+export async function getLoginStatus(): Promise<LoginResponse> {
+  const resp = await axios({
+    method: "get",
+    url: `${getBaseUrl()}/login_status`,
+    withCredentials: true,
+  });
+  return resp.data;
+}
+
+export async function changePassword(
+  currentPassword: string,
+  newPassword: string
+): Promise<void> {
+  await axios({
+    method: "post",
+    url: `${getBaseUrl()}/change_password`,
+    data: { current_password: currentPassword, new_password: newPassword },
+    withCredentials: true,
+  });
+}
+
 export async function listQueues(): Promise<ListQueuesResponse> {
   const resp = await axios({
     method: "get",

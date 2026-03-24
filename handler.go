@@ -42,6 +42,13 @@ type Options struct {
 
 	// Set ReadOnly to true to restrict user to view-only mode.
 	ReadOnly bool
+
+	// EnableAuth enables username/password authentication.
+	// When enabled, users must log in before accessing the web UI.
+	// Credentials are stored in Redis using SetCredentials/SetCredentialsWithClient.
+	//
+	// This field is optional. Default is false.
+	EnableAuth bool
 }
 
 // HTTPHandler is a http.Handler for asynqmon application.
@@ -49,6 +56,7 @@ type HTTPHandler struct {
 	router   *mux.Router
 	closers  []func() error
 	rootPath string // the value should not have the trailing slash
+	rc       redis.UniversalClient
 }
 
 func (h *HTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -77,6 +85,7 @@ func New(opts Options) *HTTPHandler {
 		router:   muxRouter(opts, rc, i),
 		closers:  []func() error{rc.Close, i.Close},
 		rootPath: opts.RootPath,
+		rc:       rc,
 	}
 }
 
@@ -96,6 +105,12 @@ func (h *HTTPHandler) RootPath() string {
 	return h.rootPath
 }
 
+// SetCredentials stores username/password credentials in Redis for authentication.
+// This should be called before starting the server when EnableAuth is true.
+func (h *HTTPHandler) SetCredentials(username, password string) error {
+	return SetCredentials(h.rc, username, password)
+}
+
 //go:embed ui/build/*
 var staticContents embed.FS
 
@@ -113,6 +128,15 @@ func muxRouter(opts Options, rc redis.UniversalClient, inspector *asynq.Inspecto
 	}
 
 	api := router.PathPrefix("/api").Subrouter()
+
+	// Auth endpoints (always available, not protected).
+	if opts.EnableAuth {
+		api.HandleFunc("/login", newLoginHandlerFunc(rc)).Methods("POST")
+		api.HandleFunc("/logout", newLogoutHandlerFunc(rc)).Methods("POST")
+		api.HandleFunc("/login_status", newLoginStatusHandlerFunc(rc)).Methods("GET")
+		// Change password requires a valid session (protected by authMiddleware).
+		api.HandleFunc("/change_password", newChangePasswordHandlerFunc(rc)).Methods("POST")
+	}
 
 	// Queue endpoints.
 	api.HandleFunc("/queues", newListQueuesHandlerFunc(inspector)).Methods("GET")
@@ -212,6 +236,13 @@ func muxRouter(opts Options, rc redis.UniversalClient, inspector *asynq.Inspecto
 		api.Use(restrictToReadOnly)
 	}
 
+	// Require authentication for all API routes when auth is enabled.
+	if opts.EnableAuth {
+		api.Use(func(next http.Handler) http.Handler {
+			return authMiddleware(rc, next)
+		})
+	}
+
 	// Everything else, route to uiAssetsHandler.
 	router.NotFoundHandler = &uiAssetsHandler{
 		rootPath:       opts.RootPath,
@@ -220,6 +251,7 @@ func muxRouter(opts Options, rc redis.UniversalClient, inspector *asynq.Inspecto
 		indexFileName:  "index.html",
 		prometheusAddr: opts.PrometheusAddress,
 		readOnly:       opts.ReadOnly,
+		enableAuth:     opts.EnableAuth,
 	}
 
 	return router

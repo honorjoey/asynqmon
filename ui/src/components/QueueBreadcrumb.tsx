@@ -8,6 +8,7 @@ import MenuItem from "@material-ui/core/MenuItem";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { paths as getPaths, queueDetailsPath } from "../paths";
 import { isDarkTheme } from "../theme";
+import { useTranslation } from "react-i18next";
 
 const StyledBreadcrumb = withStyles((theme: Theme) => ({
   root: {
@@ -38,6 +39,7 @@ interface Props {
 
 export default function QueueBreadcrumbs(props: Props) {
   const history = useHistory();
+  const { t } = useTranslation();
   const [anchorEl, setAnchorEl] = useState<null | Element>(null);
   const paths = getPaths();
 
@@ -56,7 +58,7 @@ export default function QueueBreadcrumbs(props: Props) {
         <StyledBreadcrumb
           component={Link}
           to={paths.HOME}
-          label="Queues"
+          label={t("common.queues")}
           onClick={() => history.push(paths.HOME)}
         />
         <StyledBreadcrumb

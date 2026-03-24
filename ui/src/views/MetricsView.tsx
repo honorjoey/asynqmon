@@ -18,6 +18,7 @@ import { currentUnixtime } from "../utils";
 import MetricsFetchControls from "../components/MetricsFetchControls";
 import { useQuery } from "../hooks";
 import { PrometheusMetricsResponse } from "../api";
+import { useTranslation } from "react-i18next";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -78,6 +79,7 @@ const DURATION_URL_PARAM_KEY = "duration";
 
 function MetricsView(props: Props) {
   const classes = useStyles();
+  const { t } = useTranslation();
   const history = useHistory();
   const query = useQuery();
 
@@ -174,8 +176,8 @@ function MetricsView(props: Props) {
         {data?.tasks_processed_per_second && (
           <Grid item xs={12}>
             <ChartRow
-              title="Tasks Processed"
-              description="Number of tasks processed (both succeeded and failed) per second."
+              title={t("common.tasksProcessed")}
+              description={t("metrics.tasksProcessedDesc")}
               metrics={data.tasks_processed_per_second}
               endTime={endTimeSec}
               startTime={endTimeSec - durationSec}
@@ -185,8 +187,8 @@ function MetricsView(props: Props) {
         {data?.tasks_failed_per_second && (
           <Grid item xs={12}>
             <ChartRow
-              title="Tasks Failed"
-              description="Number of tasks failed per second."
+              title={t("common.tasksFailed")}
+              description={t("metrics.tasksFailedDesc")}
               metrics={data.tasks_failed_per_second}
               endTime={endTimeSec}
               startTime={endTimeSec - durationSec}
@@ -196,8 +198,8 @@ function MetricsView(props: Props) {
         {data?.error_rate && (
           <Grid item xs={12}>
             <ChartRow
-              title="Error Rate"
-              description="Rate of task failures"
+              title={t("common.errorRate")}
+              description={t("common.errorRateDesc")}
               metrics={data.error_rate}
               endTime={endTimeSec}
               startTime={endTimeSec - durationSec}
@@ -207,8 +209,8 @@ function MetricsView(props: Props) {
         {data?.queue_size && (
           <Grid item xs={12}>
             <ChartRow
-              title="Queue Size"
-              description="Total number of tasks in a given queue."
+              title={t("common.queueSize")}
+              description={t("metrics.queueSizeDesc")}
               metrics={data.queue_size}
               endTime={endTimeSec}
               startTime={endTimeSec - durationSec}
@@ -218,8 +220,8 @@ function MetricsView(props: Props) {
         {data?.queue_latency_seconds && (
           <Grid item xs={12}>
             <ChartRow
-              title="Queue Latency"
-              description="Latency of queue, measured by the oldest pending task in the queue."
+              title={t("metrics.queueLatency")}
+              description={t("metrics.queueLatencyDesc")}
               metrics={data.queue_latency_seconds}
               endTime={endTimeSec}
               startTime={endTimeSec - durationSec}
@@ -230,8 +232,8 @@ function MetricsView(props: Props) {
         {data?.queue_size && (
           <Grid item xs={12}>
             <ChartRow
-              title="Queue Memory Usage (approx)"
-              description="Memory usage by queue. Approximate value by sampling a few tasks in a queue."
+              title={t("metrics.queueMemoryUsage")}
+              description={t("metrics.queueMemoryUsageDesc")}
               metrics={data.queue_memory_usage_approx_bytes}
               endTime={endTimeSec}
               startTime={endTimeSec - durationSec}
@@ -248,8 +250,8 @@ function MetricsView(props: Props) {
         {data?.pending_tasks_by_queue && (
           <Grid item xs={12}>
             <ChartRow
-              title="Pending Tasks"
-              description="Number of pending tasks in a given queue."
+              title={t("metrics.pendingTasks")}
+              description={t("metrics.pendingTasksDesc")}
               metrics={data.pending_tasks_by_queue}
               endTime={endTimeSec}
               startTime={endTimeSec - durationSec}
@@ -259,8 +261,8 @@ function MetricsView(props: Props) {
         {data?.retry_tasks_by_queue && (
           <Grid item xs={12}>
             <ChartRow
-              title="Retry Tasks"
-              description="Number of retry tasks in a given queue."
+              title={t("metrics.retryTasks")}
+              description={t("metrics.retryTasksDesc")}
               metrics={data.retry_tasks_by_queue}
               endTime={endTimeSec}
               startTime={endTimeSec - durationSec}
@@ -270,8 +272,8 @@ function MetricsView(props: Props) {
         {data?.archived_tasks_by_queue && (
           <Grid item xs={12}>
             <ChartRow
-              title="Archived Tasks"
-              description="Number of archived tasks in a given queue."
+              title={t("metrics.archivedTasks")}
+              description={t("metrics.archivedTasksDesc")}
               metrics={data.archived_tasks_by_queue}
               endTime={endTimeSec}
               startTime={endTimeSec - durationSec}
@@ -298,6 +300,7 @@ interface ChartRowProps {
 
 function ChartRow(props: ChartRowProps) {
   const classes = useStyles();
+  const { t } = useTranslation();
   return (
     <>
       <div className={classes.chartInfo}>
@@ -309,7 +312,7 @@ function ChartRow(props: ChartRowProps) {
           <div className={classes.errorMessage}>
             <WarningIcon fontSize="small" className={classes.warningIcon} />
             <Typography color="textSecondary">
-              Failed to get metrics data: {props.metrics.error}
+              {t("common.failedToGetMetrics")} {props.metrics.error}
             </Typography>
           </div>
         )}

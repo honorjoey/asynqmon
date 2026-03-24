@@ -4,6 +4,7 @@ interface Window {
   FLAG_ROOT_PATH: string;
   FLAG_PROMETHEUS_SERVER_ADDRESS: string;
   FLAG_READ_ONLY: string;
+  FLAG_ENABLE_AUTH: string;
 
   // Root URL path for asynqmon app.
   // ROOT_PATH should not have the tailing slash.
@@ -15,4 +16,7 @@ interface Window {
 
   // If true, app hides buttons/links to make non-GET requests to the API server.
   READ_ONLY: boolean;
+
+  // If true, the app requires users to log in before accessing any page.
+  ENABLE_AUTH: boolean;
 }

@@ -14,6 +14,12 @@ import Snackbar from "@material-ui/core/Snackbar";
 import SnackbarContent from "@material-ui/core/SnackbarContent";
 import IconButton from "@material-ui/core/IconButton";
 import Slide from "@material-ui/core/Slide";
+import Tooltip from "@material-ui/core/Tooltip";
+import Dialog from "@material-ui/core/Dialog";
+import DialogContent from "@material-ui/core/DialogContent";
+import DialogActions from "@material-ui/core/DialogActions";
+import Button from "@material-ui/core/Button";
+import Typography from "@material-ui/core/Typography";
 import { TransitionProps } from "@material-ui/core/transitions";
 import MenuIcon from "@material-ui/icons/Menu";
 import BarChartIcon from "@material-ui/icons/BarChart";
@@ -24,11 +30,15 @@ import FeedbackIcon from "@material-ui/icons/Feedback";
 import TimelineIcon from "@material-ui/icons/Timeline";
 import DoubleArrowIcon from "@material-ui/icons/DoubleArrow";
 import CloseIcon from "@material-ui/icons/Close";
+import ExitToAppIcon from "@material-ui/icons/ExitToApp";
 import { AppState } from "./store";
 import { paths as getPaths } from "./paths";
 import { isDarkTheme, useTheme } from "./theme";
 import { closeSnackbar } from "./actions/snackbarActions";
 import { toggleDrawer } from "./actions/settingsActions";
+import { loginSuccess, logout as logoutAction } from "./reducers/authReducer";
+import { getLoginStatus, logout as logoutAPI } from "./api";
+import { useTranslation } from "react-i18next";
 import ListItemLink from "./components/ListItemLink";
 import SchedulersView from "./views/SchedulersView";
 import DashboardView from "./views/DashboardView";
@@ -39,6 +49,8 @@ import ServersView from "./views/ServersView";
 import RedisInfoView from "./views/RedisInfoView";
 import MetricsView from "./views/MetricsView";
 import PageNotFoundView from "./views/PageNotFoundView";
+import LoginView from "./views/LoginView";
+import ChangePasswordView from "./views/ChangePasswordView";
 import { ReactComponent as Logo } from "./images/logo-color.svg";
 import { ReactComponent as LogoDarkTheme } from "./images/logo-white.svg";
 
@@ -137,12 +149,16 @@ function mapStateToProps(state: AppState) {
     snackbar: state.snackbar,
     themePreference: state.settings.themePreference,
     isDrawerOpen: state.settings.isDrawerOpen,
+    isAuthenticated: state.auth.isAuthenticated,
+    authUsername: state.auth.username,
   };
 }
 
 const mapDispatchToProps = {
   closeSnackbar,
   toggleDrawer,
+  loginSuccess,
+  logoutAction,
 };
 
 const connector = connect(mapStateToProps, mapDispatchToProps);
@@ -155,6 +171,60 @@ function App(props: ConnectedProps<typeof connector>) {
   const theme = useTheme(props.themePreference);
   const classes = useStyles(theme)();
   const paths = getPaths();
+  const { t } = useTranslation();
+  const [authChecked, setAuthChecked] = React.useState(!window.ENABLE_AUTH);
+
+  React.useEffect(() => {
+    if (!window.ENABLE_AUTH) return;
+    getLoginStatus()
+      .then((resp) => {
+        props.loginSuccess({ username: resp.username });
+      })
+      .catch(() => {
+        // Not logged in, will show login page.
+      })
+      .finally(() => {
+        setAuthChecked(true);
+      });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleLoginSuccess = (username: string) => {
+    props.loginSuccess({ username });
+  };
+
+  const [logoutDialogOpen, setLogoutDialogOpen] = React.useState(false);
+
+  const handleLogoutClick = () => {
+    setLogoutDialogOpen(true);
+  };
+
+  const handleLogoutCancel = () => {
+    setLogoutDialogOpen(false);
+  };
+
+  const handleLogout = async () => {
+    setLogoutDialogOpen(false);
+    try {
+      await logoutAPI();
+    } catch {
+      // Ignore errors on logout.
+    }
+    props.logoutAction();
+  };
+
+  if (!authChecked) {
+    return null; // or a loading spinner
+  }
+
+  if (window.ENABLE_AUTH && !props.isAuthenticated) {
+    return (
+      <ThemeProvider theme={theme}>
+        <LoginView onLoginSuccess={handleLoginSuccess} />
+      </ThemeProvider>
+    );
+  }
+
   return (
     <ThemeProvider theme={theme}>
       <Router>
@@ -178,6 +248,18 @@ function App(props: ConnectedProps<typeof connector>) {
                 <LogoDarkTheme width={200} height={48} />
               ) : (
                 <Logo width={200} height={48} />
+              )}
+              {window.ENABLE_AUTH && props.isAuthenticated && (
+                <Tooltip title={t("login.logoutTooltip", { username: props.authUsername })}>
+                  <IconButton
+                    color="inherit"
+                    aria-label="logout"
+                    onClick={handleLogoutClick}
+                    style={{ marginLeft: "auto" }}
+                  >
+                    <ExitToAppIcon />
+                  </IconButton>
+                </Tooltip>
               )}
             </Toolbar>
           </AppBar>
@@ -223,28 +305,28 @@ function App(props: ConnectedProps<typeof connector>) {
                   <div>
                     <ListItemLink
                       to={paths.HOME}
-                      primary="Queues"
+                      primary={t("nav.queues")}
                       icon={<BarChartIcon />}
                     />
                     <ListItemLink
                       to={paths.SERVERS}
-                      primary="Servers"
+                      primary={t("nav.servers")}
                       icon={<DoubleArrowIcon />}
                     />
                     <ListItemLink
                       to={paths.SCHEDULERS}
-                      primary="Schedulers"
+                      primary={t("nav.schedulers")}
                       icon={<ScheduleIcon />}
                     />
                     <ListItemLink
                       to={paths.REDIS}
-                      primary="Redis"
+                      primary={t("nav.redis")}
                       icon={<LayersIcon />}
                     />
                     {window.PROMETHEUS_SERVER_ADDRESS && (
                       <ListItemLink
                         to={paths.QUEUE_METRICS}
-                        primary="Metrics"
+                        primary={t("nav.metrics")}
                         icon={<TimelineIcon />}
                       />
                     )}
@@ -253,7 +335,7 @@ function App(props: ConnectedProps<typeof connector>) {
                 <List>
                   <ListItemLink
                     to={paths.SETTINGS}
-                    primary="Settings"
+                    primary={t("nav.settings")}
                     icon={<SettingsIcon />}
                   />
                   <ListItem
@@ -266,8 +348,20 @@ function App(props: ConnectedProps<typeof connector>) {
                     <ListItemIcon>
                       <FeedbackIcon />
                     </ListItemIcon>
-                    <ListItemText primary="Send Feedback" />
+                    <ListItemText primary={t("nav.sendFeedback")} />
                   </ListItem>
+                  {window.ENABLE_AUTH && props.isAuthenticated && (
+                    <ListItem
+                      button
+                      className={classes.listItem}
+                      onClick={handleLogoutClick}
+                    >
+                      <ListItemIcon>
+                        <ExitToAppIcon />
+                      </ListItemIcon>
+                      <ListItemText primary={t("nav.logout")} />
+                    </ListItem>
+                  )}
                 </List>
               </div>
             </Drawer>
@@ -292,6 +386,9 @@ function App(props: ConnectedProps<typeof connector>) {
                   <Route exact path={paths.SETTINGS}>
                     <SettingsView />
                   </Route>
+                  <Route exact path={paths.CHANGE_PASSWORD}>
+                    <ChangePasswordView />
+                  </Route>
                   <Route exact path={paths.HOME}>
                     <DashboardView />
                   </Route>
@@ -307,6 +404,54 @@ function App(props: ConnectedProps<typeof connector>) {
           </div>
         </div>
       </Router>
+      <Dialog
+        open={logoutDialogOpen}
+        onClose={handleLogoutCancel}
+        maxWidth="xs"
+        fullWidth
+        PaperProps={{ style: { borderRadius: 12, padding: "8px 0" } }}
+      >
+        <DialogContent style={{ textAlign: "center", paddingTop: 32, paddingBottom: 8 }}>
+          <ExitToAppIcon
+            style={{
+              fontSize: 56,
+              color: theme.palette.primary.main,
+              marginBottom: 12,
+            }}
+          />
+          <Typography variant="h6" style={{ fontWeight: 600, marginBottom: 8 }}>
+            {t("login.logoutConfirmTitle")}
+          </Typography>
+          <Typography variant="body2" color="textSecondary">
+            {t("login.logoutConfirmMessage")}
+          </Typography>
+        </DialogContent>
+        <DialogActions
+          style={{
+            justifyContent: "center",
+            padding: "16px 24px 28px",
+            gap: 12,
+          }}
+        >
+          <Button
+            onClick={handleLogoutCancel}
+            variant="outlined"
+            color="primary"
+            style={{ minWidth: 100, borderRadius: 8 }}
+          >
+            {t("common.cancel")}
+          </Button>
+          <Button
+            onClick={handleLogout}
+            variant="contained"
+            color="primary"
+            disableElevation
+            style={{ minWidth: 100, borderRadius: 8 }}
+          >
+            {t("nav.logout")}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </ThemeProvider>
   );
 }

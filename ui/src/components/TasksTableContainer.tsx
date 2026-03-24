@@ -18,6 +18,7 @@ import { queueDetailsPath, taskDetailsPath } from "../paths";
 import { QueueInfo } from "../reducers/queuesReducer";
 import { AppState } from "../store";
 import { isDarkTheme } from "../theme";
+import { useTranslation } from "react-i18next";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -149,18 +150,19 @@ function TasksTableContainer(props: Props & ReduxProps) {
   const { currentStats } = props;
   const classes = useStyles();
   const history = useHistory();
+  const { t } = useTranslation();
   const chips = [
-    { key: "active", label: "Active", count: currentStats.active },
-    { key: "pending", label: "Pending", count: currentStats.pending },
+    { key: "active", label: t("tasks.stateActive"), count: currentStats.active },
+    { key: "pending", label: t("tasks.statePending"), count: currentStats.pending },
     {
       key: "aggregating",
-      label: "Aggregating",
+      label: t("tasks.stateAggregating"),
       count: currentStats.aggregating,
     },
-    { key: "scheduled", label: "Scheduled", count: currentStats.scheduled },
-    { key: "retry", label: "Retry", count: currentStats.retry },
-    { key: "archived", label: "Archived", count: currentStats.archived },
-    { key: "completed", label: "Completed", count: currentStats.completed },
+    { key: "scheduled", label: t("tasks.stateScheduled"), count: currentStats.scheduled },
+    { key: "retry", label: t("tasks.stateRetry"), count: currentStats.retry },
+    { key: "archived", label: t("tasks.stateArchived"), count: currentStats.archived },
+    { key: "completed", label: t("tasks.stateCompleted"), count: currentStats.completed },
   ];
 
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -169,7 +171,7 @@ function TasksTableContainer(props: Props & ReduxProps) {
     <Paper variant="outlined" className={classes.container}>
       <div className={classes.header}>
         <Typography color="textPrimary" className={classes.heading}>
-          Tasks
+          {t("tasks.tabTasks")}
         </Typography>
         <div>
           {chips.map((c) => (
@@ -193,7 +195,7 @@ function TasksTableContainer(props: Props & ReduxProps) {
               <SearchIcon />
             </div>
             <InputBase
-              placeholder="Search by ID"
+              placeholder={t("tasks.searchPlaceholder")}
               classes={{
                 root: classes.inputRoot,
                 input: classes.inputInput,

@@ -11,6 +11,7 @@ import ServersTable from "../components/ServersTable";
 import { listServersAsync } from "../actions/serversActions";
 import { AppState } from "../store";
 import { usePolling } from "../hooks";
+import { useTranslation } from "react-i18next";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -45,6 +46,7 @@ type Props = ConnectedProps<typeof connector>;
 function ServersView(props: Props) {
   const { pollInterval, listServersAsync } = props;
   const classes = useStyles();
+  const { t } = useTranslation();
 
   usePolling(listServersAsync, pollInterval);
 
@@ -55,7 +57,7 @@ function ServersView(props: Props) {
           <Grid item xs={12}>
             <Paper className={classes.paper} variant="outlined">
               <Typography variant="h6" className={classes.heading}>
-                Servers
+                {t("servers.title")}
               </Typography>
               <ServersTable servers={props.servers} />
             </Paper>
@@ -63,9 +65,9 @@ function ServersView(props: Props) {
         ) : (
           <Grid item xs={12}>
             <Alert severity="error">
-              <AlertTitle>Error</AlertTitle>
-              Could not retrieve servers live data —{" "}
-              <strong>See the logs for details</strong>
+              <AlertTitle>{t("common.error")}</AlertTitle>
+              {t("servers.errorMsg")} —{" "}
+              <strong>{t("common.seeLogsForDetails")}</strong>
             </Alert>
           </Grid>
         )}
