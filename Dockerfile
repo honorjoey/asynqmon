@@ -3,14 +3,12 @@
 # Building a frontend.
 #
 
-FROM alpine:3.17 AS frontend
+FROM --platform=linux/amd64 alpine:3.20 AS frontend
 
 # Move to a working directory (/static).
 WORKDIR /static
 
-# https://stackoverflow.com/questions/69692842/error-message-error0308010cdigital-envelope-routinesunsupported
-ENV NODE_OPTIONS=--openssl-legacy-provider
-# Install npm (with latest nodejs) and yarn (globally, in silent mode).
+# Install nodejs, npm, and yarn.
 RUN apk add --update nodejs npm && \
     npm i -g -s --unsafe-perm yarn
 
@@ -25,7 +23,7 @@ RUN yarn install && yarn build
 # Building a backend.
 #
 
-FROM golang:1.25-alpine AS backend
+FROM --platform=linux/amd64 golang:1.26.1-alpine AS backend
 
 # Move to a working directory (/build).
 WORKDIR /build
@@ -51,7 +49,7 @@ RUN go build -ldflags="-s -w" -o asynqmon ./cmd/asynqmon
 # Creating and running a new scratch container with the backend binary.
 #
 
-FROM scratch
+FROM --platform=linux/amd64 scratch
 
 # Copy binary from /build to the root folder of the scratch container.
 COPY --from=backend ["/build/asynqmon", "/"]

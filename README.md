@@ -9,6 +9,11 @@ It supports integration with [Prometheus](https://prometheus.io) to display time
 
 Asynqmon is both a library that you can include in your web application, as well as a binary that you can simply install and run.
 
+### New Features
+
+- **Authentication**: Username/password login with bcrypt-hashed password storage. Supports changing password and logout confirmation dialog.
+- **Internationalization (i18n)**: UI supports English and Chinese. Language can be switched from the Settings page.
+
 ## Version Compatibility
 
 Please make sure the version compatibility with the Asynq package you are using.
@@ -41,10 +46,10 @@ To pull the Docker image:
 
 ```bash
 # Pull the latest image
-docker pull hibiken/asynqmon
+docker pull honorjoey/asynqmon
 
 # Or specify the image by tag
-docker pull hibiken/asynqmon[:tag]
+docker pull honorjoey/asynqmon[:tag]
 ```
 
 ### Building from source
@@ -111,6 +116,9 @@ _Note_: Use `--redis-url` to specify address, db-number, and password with one f
 | `--enable-metrics-exporter`(bool) | `ENABLE_METRICS_EXPORTER` | enable prometheus metrics exporter to expose queue metrics                                                                   | false            |
 | `--prometheus-addr`(string)       | `PROMETHEUS_ADDR`         | address of prometheus server to query time series                                                                            | ""               |
 | `--read-only`(bool)               | `READ_ONLY`               | use web UI in read-only mode                                                                                                 | false            |
+| `--enable-auth`(bool)             | `ENABLE_AUTH`             | enable username/password authentication                                                                                      | false            |
+| `--auth-username`(string)         | `AUTH_USERNAME`           | username for authentication (requires `--enable-auth`)                                                                       | ""               |
+| `--auth-password`(string)         | `AUTH_PASSWORD`           | password for authentication (requires `--enable-auth`)                                                                       | ""               |
 
 ### Connecting to Redis
 
@@ -139,6 +147,29 @@ Example:
 ```sh
 $ ./asynqmon --redis-cluster-nodes=localhost:7000,localhost:7001,localhost:7002,localhost:7003,localhost:7004,localhost:7006
 ```
+
+### Integration with Prometheus
+
+### Authentication
+
+Enable username/password authentication by passing the `--enable-auth` flag along with credentials:
+
+```bash
+# with a binary
+./asynqmon --enable-auth --auth-username=admin --auth-password=yourpassword
+
+# with Docker
+docker run --rm \
+    --name asynqmon \
+    -p 8080:8080 \
+    honorjoey/asynqmon \
+    --enable-auth \
+    --auth-username=admin \
+    --auth-password=yourpassword
+```
+
+When enabled, accessing the Web UI will redirect to the login page first. After logging in, a logout button appears in the top-right corner (with a confirmation dialog on click).  
+Logged-in users can change their password from **Settings → Change Password**.
 
 ### Integration with Prometheus
 
